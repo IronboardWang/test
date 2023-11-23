@@ -17,12 +17,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <h1>111</h1>
-  <svgIcon name="home" width="200px" height="200px"></svgIcon>
+  <router-view></router-view>
+  <!-- <h1>111</h1> -->
+  <!-- <svgIcon name="home" width="200px" height="200px"></svgIcon>
   <svg>
     <use xlink:href="#icon-vue"></use>
   </svg>
-  <hr />
+  <hr /> -->
 </template>
 
 <style scoped lang="scss">
