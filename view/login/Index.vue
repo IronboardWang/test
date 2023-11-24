@@ -13,7 +13,7 @@
             <el-input v-model="loginForm.password" :prefix-icon="Lock" type="password" placeholder="Please input password" show-password />
           </el-form-item>
           <el-form-item>
-            <el-button class="login-btn" type="primary" @click="onSubmit">登录</el-button>
+            <el-button class="login-btn" type="primary" @click="login" :loading="login_btn_loading">登录</el-button>
             <!-- <el-button>Cancel</el-button> -->
           </el-form-item>
         </el-form>
@@ -23,14 +23,44 @@
 </template>
 
 <script setup lang="ts">
+import useUserStore from '@baseUrl/store/user/user'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElNotification } from 'element-plus'
+import { getTimePeriod } from '../../src/utils/time.ts'
+
+let useUser = useUserStore()
 let loginForm = reactive({
   username: '',
   password: '',
 })
-
-const onSubmit = () => {}
+let login_btn_loading = ref(false)
+const $router = useRouter()
+const login = async () => {
+  login_btn_loading.value = true
+  try {
+    await useUser.userLogin(loginForm.username, loginForm.password)
+    const timePeriod = getTimePeriod()
+    ElNotification({
+      type: 'success',
+      title: '登录成功',
+      message: timePeriod + ', ' + loginForm.username,
+    })
+    $router.push({
+      name: 'home',
+    })
+    login_btn_loading.value = false
+  } catch (error) {
+    login_btn_loading.value = false
+    ElNotification({
+      type: 'error',
+      title: error.data.message,
+    })
+    console.log(error.data.message)
+  }
+  //
+}
 </script>
 
 <style scoped lang="scss">

@@ -2,18 +2,18 @@
 import request from './utils/request'
 import { onMounted } from 'vue'
 
-onMounted(() => {
-  request({
-    url: 'api/user/login',
-    method: 'POST',
-    data: {
-      username: 'admin',
-      password: '111111',
-    },
-  }).then(res => {
-    console.log(res)
-  })
-})
+// onMounted(() => {
+//   request({
+//     url: 'api/user/login',
+//     method: 'POST',
+//     data: {
+//       username: 'admin',
+//       password: '111111',
+//     },
+//   }).then(res => {
+//     console.log(res)
+//   })
+// })
 </script>
 
 <template>
