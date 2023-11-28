@@ -2,7 +2,7 @@ import { ResponseData } from './../../api/user/type'
 import { reqLogin } from '@baseUrl/api/user'
 import { SET_TOKEN, GET_TOKEN } from '@baseUrl/utils/token'
 import { defineStore } from 'pinia'
-import userState from './type'
+import { userState } from './type'
 export const useUserStore = defineStore('user', {
   state: (): userState => {
     return {
@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', {
     }
   },
   actions: {
-    async userLogin(username, password) {
+    async userLogin(username: string, password: string) {
       try {
         const loginData = { username, password }
         const response: ResponseData = await reqLogin(loginData)
@@ -24,7 +24,7 @@ export const useUserStore = defineStore('user', {
           console.log(response)
           return Promise.reject(response)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log(error)
         return Promise.reject(error)
       }

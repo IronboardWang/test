@@ -3,17 +3,17 @@
     <el-row>
       <el-col :span="12" :xs="0"></el-col>
       <el-col :span="12" :xs="24">
-        <el-form class="login-form">
+        <el-form ref="ruleFormRef" class="login-form" :model="loginForm" :rules="rules">
           <h1>hello</h1>
           <h2>welcome to ggyx</h2>
-          <el-form-item>
+          <el-form-item prop="username">
             <el-input v-model="loginForm.username" :prefix-icon="User" placeholder="Please input username" />
           </el-form-item>
-          <el-form-item>
+          <el-form-item prop="password">
             <el-input v-model="loginForm.password" :prefix-icon="Lock" type="password" placeholder="Please input password" show-password />
           </el-form-item>
           <el-form-item>
-            <el-button class="login-btn" type="primary" @click="login" :loading="login_btn_loading">登录</el-button>
+            <el-button class="login-btn" type="primary" @click="login(ruleFormRef)" :loading="login_btn_loading">登录</el-button>
             <!-- <el-button>Cancel</el-button> -->
           </el-form-item>
         </el-form>
@@ -23,12 +23,12 @@
 </template>
 
 <script setup lang="ts">
-import useUserStore from '@baseUrl/store/user/user'
+import useUserStore from '../../src/store/user/user'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElNotification } from 'element-plus'
-import { getTimePeriod } from '../../src/utils/time.ts'
+import { ElNotification, FormInstance, FormRules } from 'element-plus'
+import { getTimePeriod } from '../../src/utils/time'
 
 let useUser = useUserStore()
 let loginForm = reactive({
@@ -37,29 +37,46 @@ let loginForm = reactive({
 })
 let login_btn_loading = ref(false)
 const $router = useRouter()
-const login = async () => {
-  login_btn_loading.value = true
-  try {
-    await useUser.userLogin(loginForm.username, loginForm.password)
-    const timePeriod = getTimePeriod()
-    ElNotification({
-      type: 'success',
-      title: '登录成功',
-      message: timePeriod + ', ' + loginForm.username,
-    })
-    $router.push({
-      name: 'home',
-    })
-    login_btn_loading.value = false
-  } catch (error) {
-    login_btn_loading.value = false
-    ElNotification({
-      type: 'error',
-      title: error.data.message,
-    })
-    console.log(error.data.message)
+const login = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!')
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
+}
+
+const validatorUsername = (rule: any, value: any, callback: any) => {
+  if (value.length === 0) {
+    callback(new Error('请输入账号'))
+  } else if (value.length > 10 || value.length < 3) {
+    callback(new Error('username must be 3-10'))
+  } else {
+    callback()
   }
-  //
+}
+const ruleFormRef = ref<FormInstance>(null)
+console.log(ruleFormRef)
+
+const rules = reactive({
+  username: [{ validator: validatorUsername }],
+  password: [
+    { required: true, message: 'Please input user name', trigger: 'blur' },
+    { min: 6, max: 18, message: 'Length should be 6 to 18', trigger: 'blur' },
+  ],
+})
+
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      console.log('submit!')
+    } else {
+      console.log('error submit!', fields)
+    }
+  })
 }
 </script>
 
