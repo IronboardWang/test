@@ -13,7 +13,7 @@
             <el-input v-model="loginForm.password" :prefix-icon="Lock" type="password" placeholder="Please input password" show-password />
           </el-form-item>
           <el-form-item>
-            <el-button class="login-btn" type="primary" @click="login(ruleFormRef)" :loading="login_btn_loading">登录</el-button>
+            <el-button class="login-btn" type="primary" @click="login" :loading="login_btn_loading">登录</el-button>
             <!-- <el-button>Cancel</el-button> -->
           </el-form-item>
         </el-form>
@@ -27,28 +27,42 @@ import useUserStore from '../../src/store/user/user'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElNotification, FormInstance, FormRules } from 'element-plus'
-import { getTimePeriod } from '../../src/utils/time'
+import { ElNotification } from 'element-plus'
 
 let useUser = useUserStore()
 let loginForm = reactive({
   username: '',
   password: '',
 })
+const ruleFormRef = ref(null)
+
 let login_btn_loading = ref(false)
 const $router = useRouter()
-const login = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-    } else {
-      console.log('error submit!', fields)
-    }
-  })
+
+const login = async () => {
+  await ruleFormRef.value.validate()
+  login_btn_loading.value = true
+  try {
+    await useUser.userLogin(loginForm)
+    $router.push('/')
+    ElNotification({
+      type: 'success',
+      message: '登陆成功',
+      title: `Hi, 你好`,
+    })
+    login_btn_loading.value = false
+  } catch (e) {
+    console.log(e)
+    ElNotification({
+      type: 'error',
+      message: e.data.message,
+      title: `登录失败`,
+    })
+    login_btn_loading.value = false
+  }
 }
 
-const validatorUsername = (rule: any, value: any, callback: any) => {
+const validatorUsername = (_rule: any, value: any, callback: any) => {
   if (value.length === 0) {
     callback(new Error('请输入账号'))
   } else if (value.length > 10 || value.length < 3) {
@@ -57,27 +71,14 @@ const validatorUsername = (rule: any, value: any, callback: any) => {
     callback()
   }
 }
-const ruleFormRef = ref<FormInstance>(null)
-console.log(ruleFormRef)
 
 const rules = reactive({
-  username: [{ validator: validatorUsername }],
+  username: [{ validator: validatorUsername, trigger: 'blur' }],
   password: [
     { required: true, message: 'Please input user name', trigger: 'blur' },
     { min: 6, max: 18, message: 'Length should be 6 to 18', trigger: 'blur' },
   ],
 })
-
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!')
-    } else {
-      console.log('error submit!', fields)
-    }
-  })
-}
 </script>
 
 <style scoped lang="scss">
