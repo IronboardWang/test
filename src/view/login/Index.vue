@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import useUserStore from '../../src/store/user/user'
+import useUserStore from '../../store/user/user'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
@@ -45,7 +45,7 @@ const login = async () => {
       login_btn_loading.value = true
       try {
         await useUser.userLogin(loginForm)
-        $router.push('/')
+        await $router.push('/home')
         ElNotification({
           type: 'success',
           message: '登陆成功',
@@ -56,7 +56,7 @@ const login = async () => {
         console.log(e)
         ElNotification({
           type: 'error',
-          message: e,
+          message: e.data.message,
           title: `登录失败`,
         })
         login_btn_loading.value = false
@@ -91,7 +91,7 @@ const rules = reactive({
 .login_container {
   width: 100%;
   height: 100vh;
-  background: url('../../src/assets/images/background.jpg') no-repeat;
+  background: url('../../assets/images/background.jpg') no-repeat;
   background-size: cover;
 }
 .login-form {
@@ -99,7 +99,7 @@ const rules = reactive({
   top: 30vh;
   position: relative;
   padding: 40px;
-  background: url('../../src/assets/images/login_form.png') no-repeat;
+  background: url('../../assets/images/login_form.png') no-repeat;
   background-size: cover;
   h1 {
     color: aliceblue;
