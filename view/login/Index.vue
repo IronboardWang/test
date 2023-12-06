@@ -40,26 +40,32 @@ let login_btn_loading = ref(false)
 const $router = useRouter()
 
 const login = async () => {
-  await ruleFormRef.value.validate()
-  login_btn_loading.value = true
-  try {
-    await useUser.userLogin(loginForm)
-    $router.push('/')
-    ElNotification({
-      type: 'success',
-      message: '登陆成功',
-      title: `Hi, 你好`,
-    })
-    login_btn_loading.value = false
-  } catch (e) {
-    console.log(e)
-    ElNotification({
-      type: 'error',
-      message: e.data.message,
-      title: `登录失败`,
-    })
-    login_btn_loading.value = false
-  }
+  await ruleFormRef.value.validate(async (valid: any, fields: any) => {
+    if (valid) {
+      login_btn_loading.value = true
+      try {
+        await useUser.userLogin(loginForm)
+        $router.push('/')
+        ElNotification({
+          type: 'success',
+          message: '登陆成功',
+          title: `Hi, 你好`,
+        })
+        login_btn_loading.value = false
+      } catch (e) {
+        console.log(e)
+        ElNotification({
+          type: 'error',
+          message: e,
+          title: `登录失败`,
+        })
+        login_btn_loading.value = false
+      }
+    } else {
+      console.log('error submit!', fields)
+      return null
+    }
+  })
 }
 
 const validatorUsername = (_rule: any, value: any, callback: any) => {

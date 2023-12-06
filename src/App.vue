@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import request from './utils/request'
-import { onMounted } from 'vue'
+// import request from './utils/request'
+// import { onMounted } from 'vue'
 
 // onMounted(() => {
 //   request({
