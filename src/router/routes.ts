@@ -9,7 +9,11 @@ export const constantRoute = [
         path: '/home',
         component: () => import('../view/home/Index.vue'),
         name: 'home',
-        meta: { title: 'Home', hidden: false },
+        meta: {
+          title: 'Home',
+          hidden: false,
+          icon: 'HomeFilled',
+        },
       },
     ],
   },
