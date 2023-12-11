@@ -3,10 +3,12 @@ import { reqLogin } from '@baseUrl/api/user'
 import { SET_TOKEN, GET_TOKEN } from '@baseUrl/utils/token'
 import { defineStore } from 'pinia'
 import { userState, LoginForm } from './type'
+import { constantRoute } from '@baseUrl/router/routes'
 export const useUserStore = defineStore('user', {
   state: (): userState => {
     return {
       token: GET_TOKEN(),
+      menuRoutes: constantRoute,
     }
   },
   actions: {
