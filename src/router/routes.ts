@@ -3,7 +3,7 @@ export const constantRoute = [
     path: '/',
     component: () => import('../layout/index.vue'),
     name: 'default',
-    meta: { title: 'Default', hidden: false },
+    meta: { title: 'Default', hidden: false, requiresAuth: true },
     children: [
       {
         path: '/home',
