@@ -1,16 +1,11 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import Logo from './logo/index.vue'
-import { Document, Menu as IconMenu, Location, Setting } from '@element-plus/icons-vue'
 import Menu from './menu/index.vue'
 import useUserStore from '@baseUrl/store/user/user'
-const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
-const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
-
+import Main from './main/index.vue'
 let userStore = useUserStore()
+let $route = useRoute()
 </script>
 
 <template>
@@ -19,39 +14,15 @@ let userStore = useUserStore()
     <div class="layout_slider">
       <Logo></Logo>
       <el-scrollbar class="scrollbar">
-        <Menu :menuList="userStore.menuRoutes"></Menu>
-        <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose">
-          <el-menu-item index="1">
-            <el-icon><location /></el-icon>
-            <span>首页</span>
-          </el-menu-item>
-          <el-menu-item index="2">
-            <el-icon><location /></el-icon>
-            <span>数据大屏</span>
-          </el-menu-item>
-          <el-sub-menu index="3">
-            <template #title>
-              <el-icon><location /></el-icon>
-              <span>权限管理</span>
-            </template>
-            <el-menu-item index="3-1">
-              <el-icon><location /></el-icon>
-              <span>3-1</span>
-            </el-menu-item>
-            <el-menu-item index="3-2">
-              <el-icon><location /></el-icon>
-              <span>3-2</span>
-            </el-menu-item>
-            <el-menu-item index="3-3">
-              <el-icon><location /></el-icon>
-              <span>3-3</span>
-            </el-menu-item>
-          </el-sub-menu>
+        <el-menu :default-active="$route.path">
+          <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-scrollbar>
     </div>
     <div class="layout_top">2</div>
-    <div class="layout_main">3</div>
+    <div class="layout_main">
+      <Main></Main>
+    </div>
   </div>
 </template>
 
