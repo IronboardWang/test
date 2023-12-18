@@ -1,5 +1,5 @@
 <template>
-  <div>user</div>
+  <div>trade</div>
 </template>
 
 <script setup lang="ts">
