@@ -5,6 +5,8 @@ import Menu from './menu/index.vue'
 import useUserStore from '@baseUrl/store/user/user'
 import Main from './main/index.vue'
 import Tabbar from './tabbar/index.vue'
+import { useLayOutSettingsStore } from '../store/layout/settings'
+let useLayOutSettings = useLayOutSettingsStore()
 let userStore = useUserStore()
 let $route = useRoute()
 </script>
@@ -12,18 +14,18 @@ let $route = useRoute()
 <template>
   <div class="layout_container">
     <!-- <h1>first router</h1> -->
-    <div class="layout_slider">
+    <div class="layout_slider" :class="{ fold: useLayOutSettings.fold ? true : false }">
       <Logo></Logo>
       <el-scrollbar class="scrollbar">
-        <el-menu :default-active="$route.path">
+        <el-menu :default-active="$route.path" :collapse="useLayOutSettings.fold">
           <Menu :menuList="userStore.menuRoutes"></Menu>
         </el-menu>
       </el-scrollbar>
     </div>
-    <div class="layout_top">
+    <div class="layout_top" :class="{ fold: useLayOutSettings.fold ? true : false }">
       <Tabbar></Tabbar>
     </div>
-    <div class="layout_main">
+    <div class="layout_main" :class="{ fold: useLayOutSettings.fold ? true : false }">
       <Main></Main>
     </div>
   </div>
@@ -40,6 +42,11 @@ let $route = useRoute()
     background-color: white;
     height: 100vh;
     border-right: 1px solid gray;
+    transition: all 0.3;
+
+    &.fold {
+      width: 50px;
+    }
   }
   .layout_top {
     width: calc(100% - $base-menu-width);
@@ -48,6 +55,11 @@ let $route = useRoute()
     left: $base-menu-width;
     // background-color: gray;
     height: $base-home-top-height;
+    transition: all 0.3;
+    &.fold {
+      width: calc(100% - 50px);
+      left: 50px;
+    }
   }
   .layout_main {
     position: absolute;
@@ -58,6 +70,12 @@ let $route = useRoute()
     top: $base-home-top-height;
     padding: 20px;
     overflow: auto;
+    transition: all 0.3;
+
+    &.fold {
+      width: calc(100% - 50px);
+      left: 50px;
+    }
   }
 }
 .scrollbar-demo-item {

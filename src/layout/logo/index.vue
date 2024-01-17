@@ -1,13 +1,15 @@
 <template>
   <div class="logo" v-if="setting.isHidden">
     <img :src="setting.img_scr" alt="" />
-    <span>{{ setting.title }}</span>
+    <span v-if="!useLayOutSettings.fold">{{ setting.title }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import setting from '../../setting/logo'
+import { useLayOutSettingsStore } from '../../store/layout/settings'
+let useLayOutSettings = useLayOutSettingsStore()
 </script>
 
 <style scoped lang="scss">
@@ -19,8 +21,8 @@ import setting from '../../setting/logo'
   padding: 20px;
 
   img {
-    width: 40px;
-    height: 40px;
+    width: 18px;
+    height: 18px;
   }
   span {
     font-size: 20px;
