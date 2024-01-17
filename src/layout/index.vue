@@ -4,6 +4,7 @@ import Logo from './logo/index.vue'
 import Menu from './menu/index.vue'
 import useUserStore from '@baseUrl/store/user/user'
 import Main from './main/index.vue'
+import Tabbar from './tabbar/index.vue'
 let userStore = useUserStore()
 let $route = useRoute()
 </script>
@@ -19,7 +20,9 @@ let $route = useRoute()
         </el-menu>
       </el-scrollbar>
     </div>
-    <div class="layout_top">2</div>
+    <div class="layout_top">
+      <Tabbar></Tabbar>
+    </div>
     <div class="layout_main">
       <Main></Main>
     </div>
@@ -36,13 +39,14 @@ let $route = useRoute()
     width: $base-menu-width;
     background-color: white;
     height: 100vh;
+    border-right: 1px solid gray;
   }
   .layout_top {
     width: calc(100% - $base-menu-width);
     position: fixed;
     top: 0;
     left: $base-menu-width;
-    background-color: cyan;
+    // background-color: gray;
     height: $base-home-top-height;
   }
   .layout_main {
