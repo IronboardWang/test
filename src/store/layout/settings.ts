@@ -4,6 +4,7 @@ export const useLayOutSettingsStore = defineStore('settingsStore', {
   state: () => {
     return {
       fold: false,
+      refresh: false,
     }
   },
 })

@@ -11,5 +11,9 @@ export const reqLogin = (data: loginFormData) => {
 }
 
 export const reqUserInfo = () => {
-  request.get(API.USERINFO_URL)
+  return request.get(API.USERINFO_URL)
 }
+
+// export const reqUserLogout = () => {
+//   return request.get(API.USERINFO_URL)
+// }

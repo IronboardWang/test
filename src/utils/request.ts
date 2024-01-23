@@ -1,3 +1,4 @@
+import { useUserStore } from './../store/user/user'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { ElMessage } from 'element-plus'
 
@@ -9,6 +10,12 @@ request.defaults.headers.post['Content-Type'] = 'application/json'
 
 request.interceptors.request.use(
   config => {
+    const userStore = useUserStore()
+    const token = userStore.token
+    console.log(token)
+    if (token) {
+      config.headers.token = token
+    }
     return config
   },
   error => Promise.reject(error),

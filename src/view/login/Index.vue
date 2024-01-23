@@ -26,7 +26,7 @@
 import useUserStore from '../../store/user/user'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElNotification } from 'element-plus'
 
 let useUser = useUserStore()
@@ -38,6 +38,7 @@ const ruleFormRef = ref(null)
 
 let login_btn_loading = ref(false)
 const $router = useRouter()
+const $route = useRoute()
 
 const login = async () => {
   await ruleFormRef.value.validate(async (valid: any, fields: any) => {
@@ -45,7 +46,14 @@ const login = async () => {
       login_btn_loading.value = true
       try {
         await useUser.userLogin(loginForm)
-        await $router.push('/home')
+        console.log($route.query.redirect)
+        const redirect: any = $route.query.redirect
+        if (redirect) {
+          $router.push({ path: redirect })
+        } else {
+          $router.push('/home')
+        }
+
         ElNotification({
           type: 'success',
           message: '登陆成功',
