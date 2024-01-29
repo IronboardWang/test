@@ -1,19 +1,20 @@
 import request from '../../utils/request'
-import { loginFormData, ResponseData } from './type'
+import { loginFormData, userInfoResponseData } from './type'
 
 enum API {
-  LOGIN_URL = 'api/user/login',
-  USERINFO_URL = 'api/user/info',
+  LOGIN_URL = '/admin/acl/index/login',
+  USERINFO_URL = '/admin/acl/index/info',
+  LOGOUT_URL = '/admin/acl/index/logout',
 }
 
 export const reqLogin = (data: loginFormData) => {
-  return request.post<any, ResponseData>(API.LOGIN_URL, data)
+  return request.post(API.LOGIN_URL, data)
 }
 
 export const reqUserInfo = () => {
-  return request.get(API.USERINFO_URL)
+  return request.get<any, userInfoResponseData>(API.USERINFO_URL)
 }
 
-// export const reqUserLogout = () => {
-//   return request.get(API.USERINFO_URL)
-// }
+export const reqUserLogout = () => {
+  return request.post(API.LOGOUT_URL)
+}

@@ -1,3 +1,5 @@
+import { reqLogin, reqUserLogout } from './../../api/user/index'
+import { REMOVE_TOKEN } from './../../utils/token'
 import { ResponseData } from './../../api/user/type'
 import { reqLogin, reqUserInfo } from '@baseUrl/api/user'
 import { SET_TOKEN, GET_TOKEN } from '@baseUrl/utils/token'
@@ -19,7 +21,7 @@ export const useUserStore = defineStore('user', {
         const response: ResponseData = await reqLogin(loginData)
 
         if (response.code === 200) {
-          const token = response.data.token
+          const token = response.data
           SET_TOKEN(token)
           this.token = token
           return Promise.resolve(response)
@@ -34,18 +36,30 @@ export const useUserStore = defineStore('user', {
     },
 
     async userInfo() {
-      const result = await reqUserInfo()
-      console.log(result)
-      if (result.code === 200) {
-        this.username = result.data.checkUser.username
-        this.avatar = result.data.checkUser.avatar
-        console.log(this.username)
+      if (this.username === '') {
+        const response = await reqUserInfo()
+        // console.log(response)
+        if (response.code === 200) {
+          this.username = response.data.name
+          this.avatar = response.data.avatar
+          return Promise.resolve(response)
+        } else {
+          return Promise.reject(response)
+        }
       }
     },
     async logout() {
-      this.username = ''
-      this.avatar = ''
-      this.token = null
+      const result = await reqUserLogout()
+      console.log(result)
+      if (result.code === 200) {
+        REMOVE_TOKEN()
+        this.username = ''
+        this.avatar = ''
+        this.token = ''
+        return Promise.resolve(result)
+      } else {
+        return Promise.reject(result)
+      }
     },
   },
   getters: {},

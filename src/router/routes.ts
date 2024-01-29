@@ -4,7 +4,7 @@ export const constantRoute = [
     component: () => import('../layout/index.vue'),
     name: 'default',
     meta: { title: 'Default', hidden: false, requiresAuth: true },
-    redirect: '/home',
+    redirect: '/login',
     children: [
       {
         path: '/home',

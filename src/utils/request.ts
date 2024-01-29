@@ -3,16 +3,20 @@ import axios, { AxiosError, AxiosResponse } from 'axios'
 import { ElMessage } from 'element-plus'
 
 const request = axios.create({
-  // baseURL: 'http://localhost:8000/',
+  baseURL: import.meta.env.VITE_APP_BASE_API,
   timeout: 1000 * 5,
 })
+
+// console.log(import.meta.env)
+// console.log(import.meta.env.VITE_APP_BASE_API)
+
 request.defaults.headers.post['Content-Type'] = 'application/json'
 
 request.interceptors.request.use(
   config => {
     const userStore = useUserStore()
     const token = userStore.token
-    console.log(token)
+    // console.log(token)
     if (token) {
       config.headers.token = token
     }

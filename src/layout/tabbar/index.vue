@@ -62,9 +62,8 @@ const full_main = () => {
   }
 }
 
-const logout = () => {
-  REMOVE_TOKEN()
-  userStore.logout()
+const logout = async () => {
+  await userStore.logout()
   $router.replace({
     path: '/login',
     query: {
