@@ -27,3 +27,5 @@ export interface HasTrademarkRequest {
   page: number
   limit: number
 }
+
+export interface addTrademarkRequest {}
