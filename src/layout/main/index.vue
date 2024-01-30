@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useLayOutSettingsStore } from '../../store/layout/settings'
 let LayOutSettingsStore = useLayOutSettingsStore()
 let refresh_flag = ref(true)

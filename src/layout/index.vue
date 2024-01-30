@@ -65,7 +65,6 @@ let $route = useRoute()
     position: absolute;
     width: calc(100% - $base-menu-width);
     height: calc(100vh - $base-home-top-height);
-    background-color: green;
     left: $base-menu-width;
     top: $base-home-top-height;
     padding: 20px;

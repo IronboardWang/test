@@ -6,8 +6,11 @@
         <Fold v-else></Fold>
       </el-icon>
       <el-breadcrumb separator-icon="ArrowRight">
-        <el-breadcrumb-item v-for="_route in $route.matched" :key="_route.meta['title']">{{ _route.meta['title'] }}</el-breadcrumb-item>
-        <!-- <el-breadcrumb-item :to="{ path: '/' }">homepage</el-breadcrumb-item> -->
+        <template v-for="_route in $route.matched" :key="_route.meta['title']">
+          <template v-if="_route.meta['title'] !== 'Default'">
+            <el-breadcrumb-item>{{ _route.meta['title'] }}</el-breadcrumb-item>
+          </template>
+        </template>
       </el-breadcrumb>
     </div>
     <div class="tabber_right">
@@ -33,11 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
 import { useLayOutSettingsStore } from '../../store/layout/settings'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@baseUrl/store/user/user'
-import { REMOVE_TOKEN } from '@baseUrl/utils/token'
 let userStore = useUserStore()
 let LayOutSettingsStore = useLayOutSettingsStore()
 
