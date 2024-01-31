@@ -10,8 +10,8 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
-        <template #default>
-          <el-button size="small" @click="handleEdit">Edit</el-button>
+        <template #default="scope">
+          <el-button size="small" @click="handleEdit(scope.row)">Edit</el-button>
           <el-button size="small" type="danger" @click="handleDelete">Delete</el-button>
         </template>
       </el-table-column>
@@ -32,9 +32,9 @@
     </div>
   </el-card>
 
-  <el-dialog v-model="dialogAddTradeMarkVisible" title="添加品牌">
+  <el-dialog v-model="dialogTradeMarkVisible" :title="dialog_title">
     <el-form :model="trademark" style="width: 80%; min-width: 178px">
-      <el-form-item label="品牌名称" :label-width="formLabelWidth">
+      <el-form-item label="品牌名称" :label-width="formLabelWidth" style="width: 50%">
         <el-input v-model="trademarkForm.tmName" autocomplete="off" />
       </el-form-item>
       <el-form-item label="品牌logo" :label-width="formLabelWidth">
@@ -52,8 +52,8 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="dialogAddTradeMarkVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="addTradeMark"> Confirm </el-button>
+        <el-button @click="dialogTradeMarkVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="updateTradeMark"> Confirm </el-button>
       </span>
     </template>
   </el-dialog>
@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { reqHasTrademark, reqAddTrademark } from '@baseUrl/api/product/trademark/index'
+import { reqHasTrademark, reqAddTrademark, reqUpdateTrademark } from '@baseUrl/api/product/trademark/index'
 import { Records } from '@baseUrl/api/product/trademark/type'
 import type { UploadProps } from 'element-plus'
 import { ElMessage } from 'element-plus'
@@ -73,6 +73,8 @@ let background = ref(false)
 let disabled = ref(false)
 let total = ref<number>(0)
 let trademark = ref<Records>([])
+let dialog_title = ref('')
+let currentTradeMark = ref('')
 // const hiddenOnSingle = ref(false)
 
 const handlePageSizeChange = () => {
@@ -90,7 +92,14 @@ const getHasTrademark = async () => {
   }
 }
 
-const handleEdit = () => {}
+const handleEdit = (row: any) => {
+  console.log(row)
+  trademarkForm.tmName = row.tmName
+  trademarkForm.logoUrl = row.logoUrl
+  currentTradeMark.value = row.id
+  dialog_title.value = 'Edit Trademark'
+  dialogTradeMarkVisible.value = true
+}
 
 const handleDelete = () => {}
 
@@ -114,24 +123,39 @@ onMounted(() => {
 })
 
 // const dialogTableVisible = ref(false)
-const dialogAddTradeMarkVisible = ref(false)
+const dialogTradeMarkVisible = ref(false)
 const formLabelWidth = '140px'
 
 const openDialogAddTradeMarkVisible = () => {
   trademarkForm.tmName = ''
   trademarkForm.logoUrl = ''
-  dialogAddTradeMarkVisible.value = true
+  currentTradeMark.value = ''
+  dialog_title.value = 'Add Trade Mark'
+  dialogTradeMarkVisible.value = true
 }
 
-const addTradeMark = async () => {
+const updateTradeMark = async () => {
   console.log(trademarkForm.logoUrl)
 
-  dialogAddTradeMarkVisible.value = false
-  const result = await reqAddTrademark({
-    tmName: trademarkForm.tmName,
-    logoUrl: trademarkForm.logoUrl,
-  })
-  console.log(result)
+  dialogTradeMarkVisible.value = false
+  if (currentTradeMark.value === '') {
+    const result = await reqAddTrademark({
+      tmName: trademarkForm.tmName,
+      logoUrl: trademarkForm.logoUrl,
+    })
+    if (result.code === 200) {
+      getHasTrademark()
+    }
+  } else {
+    const result = await reqUpdateTrademark({
+      tmName: trademarkForm.tmName,
+      logoUrl: trademarkForm.logoUrl,
+      id: currentTradeMark.value,
+    })
+    if (result.code === 200) {
+      getHasTrademark()
+    }
+  }
 }
 
 const trademarkForm = reactive({

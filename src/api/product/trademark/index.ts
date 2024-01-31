@@ -17,5 +17,5 @@ export const reqAddTrademark = (req: addTrademarkRequest) => {
 }
 
 export const reqUpdateTrademark = (req: addTrademarkRequest) => {
-  return request.post<any, TradeMarkResponseData>(API.UpdateTradeMark_URL, req)
+  return request.put<any, TradeMarkResponseData>(API.UpdateTradeMark_URL, req)
 }
