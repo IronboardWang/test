@@ -1,6 +1,6 @@
 import SvgIcon from './SvgIcon.vue'
-
-const allGlobalComponent: any = { SvgIcon }
+import Category from './Category.vue'
+const allGlobalComponent: any = { SvgIcon, Category }
 
 export default {
   install(app: any) {

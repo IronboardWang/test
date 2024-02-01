@@ -12,7 +12,11 @@
       <el-table-column label="操作" align="center">
         <template #default="scope">
           <el-button size="small" @click="handleEdit(scope.row)">Edit</el-button>
-          <el-button size="small" type="danger" @click="handleDelete">Delete</el-button>
+          <el-popconfirm :title="`Are you sure to delete ${scope.row.tmName}?`" @confirm="handleDelete(scope.row)" icon="Delete">
+            <template #reference>
+              <el-button size="small" type="danger">Delete</el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -33,11 +37,11 @@
   </el-card>
 
   <el-dialog v-model="dialogTradeMarkVisible" :title="dialog_title">
-    <el-form :model="trademark" style="width: 80%; min-width: 178px">
-      <el-form-item label="品牌名称" :label-width="formLabelWidth" style="width: 50%">
+    <el-form ref="trademarkRef" :model="trademarkForm" style="width: 80%; min-width: 178px" :rules="rules">
+      <el-form-item label="品牌名称" :label-width="formLabelWidth" style="width: 50%" prop="tmName">
         <el-input v-model="trademarkForm.tmName" autocomplete="off" />
       </el-form-item>
-      <el-form-item label="品牌logo" :label-width="formLabelWidth">
+      <el-form-item label="品牌logo" :label-width="formLabelWidth" prop="logoUrl">
         <el-upload
           class="avatar-uploader"
           action="/api/admin/product/fileUpload"
@@ -53,17 +57,17 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogTradeMarkVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="updateTradeMark"> Confirm </el-button>
+        <el-button type="primary" @click="submitForm(trademarkRef)"> Confirm </el-button>
       </span>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { reqHasTrademark, reqAddTrademark, reqUpdateTrademark } from '@baseUrl/api/product/trademark/index'
+import { nextTick, onMounted, reactive, ref } from 'vue'
+import { reqHasTrademark, reqAddTrademark, reqUpdateTrademark, reqDeleteTrademark } from '@baseUrl/api/product/trademark/index'
 import { Records } from '@baseUrl/api/product/trademark/type'
-import type { UploadProps } from 'element-plus'
+import type { FormInstance, FormRules, UploadProps } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
 let currentPage = ref(1)
@@ -75,7 +79,7 @@ let total = ref<number>(0)
 let trademark = ref<Records>([])
 let dialog_title = ref('')
 let currentTradeMark = ref('')
-// const hiddenOnSingle = ref(false)
+const trademarkRef = ref<FormInstance>()
 
 const handlePageSizeChange = () => {
   currentPage.value = 1
@@ -93,18 +97,28 @@ const getHasTrademark = async () => {
 }
 
 const handleEdit = (row: any) => {
-  console.log(row)
   trademarkForm.tmName = row.tmName
   trademarkForm.logoUrl = row.logoUrl
   currentTradeMark.value = row.id
   dialog_title.value = 'Edit Trademark'
   dialogTradeMarkVisible.value = true
+  nextTick(() => {
+    clearTrademarkValidate()
+  })
 }
 
-const handleDelete = () => {}
+const handleDelete = async (row: any) => {
+  const result = await reqDeleteTrademark({
+    id: row.id,
+  })
+  if (result.code === 200) {
+    getHasTrademark()
+  }
+}
 
 const handleAvatarSuccess: UploadProps['onSuccess'] = response => {
   trademarkForm.logoUrl = response.data
+  trademarkRef.value?.clearValidate('logoUrl')
 }
 
 const beforeAvatarUpload: UploadProps['beforeUpload'] = rawFile => {
@@ -132,11 +146,29 @@ const openDialogAddTradeMarkVisible = () => {
   currentTradeMark.value = ''
   dialog_title.value = 'Add Trade Mark'
   dialogTradeMarkVisible.value = true
+
+  nextTick(() => {
+    clearTrademarkValidate()
+  })
+}
+
+const clearTrademarkValidate = () => {
+  trademarkRef.value?.clearValidate('tmName')
+  trademarkRef.value?.clearValidate('logoUrl')
+}
+
+const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate(valid => {
+    if (valid) {
+      updateTradeMark()
+    } else {
+      return false
+    }
+  })
 }
 
 const updateTradeMark = async () => {
-  console.log(trademarkForm.logoUrl)
-
   dialogTradeMarkVisible.value = false
   if (currentTradeMark.value === '') {
     const result = await reqAddTrademark({
@@ -161,6 +193,27 @@ const updateTradeMark = async () => {
 const trademarkForm = reactive({
   tmName: '',
   logoUrl: '',
+})
+const validateTmName = (rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error('Please input the TmName'))
+  } else {
+    if (value.length < 2 || value.length >= 18) {
+      callback(new Error('TmName must between 2 ~ 18 characters'))
+    }
+    callback()
+  }
+}
+const validateLogoUrl = (rule: any, value: any, callback: any) => {
+  if (value === '') {
+    callback(new Error('Please upload the Logo'))
+  } else {
+    callback()
+  }
+}
+const rules = reactive<FormRules<typeof trademarkForm>>({
+  tmName: [{ required: true, validator: validateTmName, trigger: 'blur' }],
+  logoUrl: [{ required: true, validator: validateLogoUrl }],
 })
 </script>
 

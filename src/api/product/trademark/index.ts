@@ -5,7 +5,7 @@ enum API {
   BaseTrademark_URL = '/admin/product/baseTrademark/',
   AddTradeMark_URL = '/admin/product/baseTrademark/save/',
   UpdateTradeMark_URL = '/admin/product/baseTrademark/update/',
-  LOGOUT_URL = '/admin/acl/index/logout',
+  DeleteTrademark_URL = '/admin/product/baseTrademark/remove/',
 }
 
 export const reqHasTrademark = (req: HasTrademarkRequest) => {
@@ -18,4 +18,10 @@ export const reqAddTrademark = (req: addTrademarkRequest) => {
 
 export const reqUpdateTrademark = (req: addTrademarkRequest) => {
   return request.put<any, TradeMarkResponseData>(API.UpdateTradeMark_URL, req)
+}
+
+export const reqDeleteTrademark = (req: any) => {
+  console.log(req)
+
+  return request.delete<any, TradeMarkResponseData>(API.DeleteTrademark_URL + req.id)
 }
