@@ -33,19 +33,6 @@
 import { FormInstance, FormRules } from 'element-plus'
 import { onMounted, reactive, ref, watch } from 'vue'
 
-// {
-//   classFormInline: {
-//     default: () => ({
-//       firstClass: '',
-//       secondClass: '',
-//       thirdClass: '',
-//     }),
-//   },
-//   c1Arr: Array,
-//   c2Arr: Array,
-//   c3Arr: Array,
-// }
-
 defineProps(['c1Arr', 'c2Arr', 'c3Arr'])
 const $emit = defineEmits(['getC1', 'getC2', 'getC3', 'onSubmit'])
 const classFormInline = ref({
@@ -64,6 +51,7 @@ watch(
   () => {
     $emit('getC2', classFormInline.value.firstClass)
     classFormInline.value.secondClass = ''
+    classRef.value.clearValidate(['firstClass', 'secondClass', 'thirdClass'])
   },
 )
 
@@ -72,6 +60,7 @@ watch(
   () => {
     $emit('getC3', classFormInline.value.secondClass)
     classFormInline.value.thirdClass = ''
+    classRef.value.clearValidate(['firstClass', 'secondClass', 'thirdClass'])
   },
 )
 

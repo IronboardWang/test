@@ -31,8 +31,8 @@ import { ElNotification } from 'element-plus'
 
 let useUser = useUserStore()
 let loginForm = reactive({
-  username: '',
-  password: '',
+  username: 'admin',
+  password: 'atguigu123',
 })
 const ruleFormRef = ref(null)
 
