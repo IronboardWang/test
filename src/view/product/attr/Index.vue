@@ -71,13 +71,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, reactive, nextTick } from 'vue'
+import { onMounted, ref, reactive, nextTick, Ref } from 'vue'
 import { reqC1, reqC2, reqC3, reqAttr, reqAddOrUpdateAttr, reqRemoveAttr } from '@baseUrl/api/product/attr'
 import type { TagProps } from 'element-plus'
 import { Attr } from '@baseUrl/api/product/attr/type'
 onMounted(() => {
   getC1()
-  onSubmit()
+  // onSubmit()
 })
 
 let c1Arr = ref()
@@ -117,12 +117,10 @@ const getC3 = async (category2Id: string) => {
   }
 }
 
-// const onSubmit = async (classFormInline: Ref) => {
-const onSubmit = async () => {
-  console.log('onSubmit')
-  // current_c1.value = classFormInline.value.firstClass
-  // current_c2.value = classFormInline.value.secondClass
-  // current_c3.value = classFormInline.value.thirdClass
+const onSubmit = async (classFormInline: Ref) => {
+  current_c1.value = classFormInline.value.firstClass
+  current_c2.value = classFormInline.value.secondClass
+  current_c3.value = classFormInline.value.thirdClass
   current_c1.value = 2
   current_c2.value = 15
   current_c3.value = 69
@@ -151,12 +149,16 @@ const addAttr = () => {
 }
 
 const handleEditAttr = (row: any) => {
-  console.log(row)
   detailShowScene.value = 1
+  let deepCopy = JSON.parse(JSON.stringify(row))
+  Object.assign(attrParams, deepCopy)
 }
 
-const handleDeleteAttr = (row: any) => {
+const handleDeleteAttr = async (row: any) => {
   console.log(row)
+  const result = await reqRemoveAttr(row.id)
+  console.log(result)
+  refreshAttrList()
 }
 
 const addAttrValue = () => {
@@ -168,6 +170,16 @@ const addAttrValue = () => {
   nextTick(() => {
     currentInputAttrValue.value.focus()
   })
+}
+
+const refreshAttrList = async () => {
+  const result = await reqAttr(current_c1.value, current_c2.value, current_c3.value)
+  if (result.code === 200) {
+    attrArr.value = result.data
+    reqAddOrUpdateAttrButton.value = false
+  } else {
+    reqAddOrUpdateAttrButton.value = true
+  }
 }
 
 const cancelAddAttrValue = () => {
