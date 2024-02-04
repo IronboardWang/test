@@ -7,17 +7,17 @@
     </template>
     <el-form ref="classRef" :inline="true" :model="classFormInline" class="class-form-inline" :rules="rules">
       <el-form-item label="一级分类" prop="firstClass">
-        <el-select v-model="classFormInline.firstClass" placeholder="一级分类" clearable>
+        <el-select v-model="classFormInline.firstClass" placeholder="一级分类" clearable :disabled="true ? detailShowScene === 1 : false">
           <el-option v-for="c1 in c1Arr" :key="c1.id" :label="c1.name" :value="c1.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="二级分类" prop="secondClass">
-        <el-select v-model="classFormInline.secondClass" placeholder="二级分类" clearable>
+        <el-select v-model="classFormInline.secondClass" placeholder="二级分类" clearable :disabled="true ? detailShowScene === 1 : false">
           <el-option v-for="c2 in c2Arr" :key="c2.id" :label="c2.name" :value="c2.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="三级分类" prop="thirdClass">
-        <el-select v-model="classFormInline.thirdClass" placeholder="三级分类" clearable>
+        <el-select v-model="classFormInline.thirdClass" placeholder="三级分类" clearable :disabled="true ? detailShowScene === 1 : false">
           <el-option v-for="c3 in c3Arr" :key="c3.id" :label="c3.name" :value="c3.id" />
         </el-select>
       </el-form-item>
@@ -33,7 +33,9 @@
 import { FormInstance, FormRules } from 'element-plus'
 import { onMounted, reactive, ref, watch } from 'vue'
 
-defineProps(['c1Arr', 'c2Arr', 'c3Arr'])
+const props = defineProps(['c1Arr', 'c2Arr', 'c3Arr', 'detailShowScene'])
+console.log(props.detailShowScene)
+
 const $emit = defineEmits(['getC1', 'getC2', 'getC3', 'onSubmit'])
 const classFormInline = ref({
   firstClass: '',
