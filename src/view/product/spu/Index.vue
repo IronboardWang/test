@@ -1,32 +1,36 @@
 <template>
   <Category :c1Arr="c1Arr" :c2Arr="c2Arr" :c3Arr="c3Arr" :detailShowScene="detailShowScene" @getC2="getC2" @getC3="getC3" @onSubmit="onSubmit"></Category>
   <el-card>
-    <el-button type="primary" size="default" icon="plus" :disabled="addSpuButtonDisable">添加spu</el-button>
-    <el-table style="margin: 10px 0px" border :data="spuRecords">
-      <el-table-column label="index" width="80px" align="center" type="index"></el-table-column>
-      <el-table-column label="id" width="80px" align="center" prop="id"></el-table-column>
-      <el-table-column label="spuName" width="120px" prop="spuName"></el-table-column>
-      <el-table-column label="description" prop="description"></el-table-column>
-      <el-table-column label="操作" width="300px" align="center">
-        <template v-slot="{ row, $index }">
-          <el-button type="primary" icon="plus" size="small" title="add sku"></el-button>
-          <el-button type="primary" icon="edit" size="small" title="add sku"></el-button>
-          <el-button type="primary" icon="search" size="small" title="add sku"></el-button>
-          <el-button type="primary" icon="delete" size="small" title="add sku"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div class="spu-pagination">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[3, 5, 7, 9]"
-        layout="prev, pager, next, jumper,sizes,->,total "
-        :total="spuTotal"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+    <div v-show="scene === showScene.spuList">
+      <el-button type="primary" size="default" icon="plus" :disabled="addSpuButtonDisable" @click="addSpu">添加spu</el-button>
+      <el-table style="margin: 10px 0px" border :data="spuRecords">
+        <el-table-column label="index" width="80px" align="center" type="index"></el-table-column>
+        <el-table-column label="id" width="80px" align="center" prop="id"></el-table-column>
+        <el-table-column label="spuName" width="120px" prop="spuName"></el-table-column>
+        <el-table-column label="description" prop="description"></el-table-column>
+        <el-table-column label="操作" width="300px" align="center">
+          <template v-slot="{ row, $index }">
+            <el-button type="primary" icon="plus" size="small" title="add sku"></el-button>
+            <el-button type="primary" icon="edit" size="small" title="add sku"></el-button>
+            <el-button type="primary" icon="search" size="small" title="add sku"></el-button>
+            <el-button type="primary" icon="delete" size="small" title="add sku"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="spu-pagination">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[3, 5, 7, 9]"
+          layout="prev, pager, next, jumper,sizes,->,total "
+          :total="spuTotal"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
+    <SkuForm v-show="scene === showScene.skuForm"></SkuForm>
+    <SpuForm v-show="scene === showScene.spuForm" @changeScene="changeScene"></SpuForm>
   </el-card>
 </template>
 
@@ -34,7 +38,8 @@
 import { reqC1, reqC2, reqC3 } from '@baseUrl/api/product/attr'
 import { reqHasSpu } from '@baseUrl/api/product/spu'
 import { ref, reactive, Ref, onMounted } from 'vue'
-
+import SpuForm from './spuForm.vue'
+import SkuForm from './skuForm.vue'
 let c1Arr = ref()
 let c2Arr = ref()
 let c3Arr = ref()
@@ -50,6 +55,15 @@ let spuTotal = ref(0)
 let spuRecords = ref()
 
 let addSpuButtonDisable = ref(true)
+
+enum showScene {
+  spuList = 0,
+  spuForm = 1,
+  skuForm = 2,
+}
+
+let scene = ref<number>(showScene.spuList)
+
 const handleSizeChange = () => {
   getSpuList()
 }
@@ -92,6 +106,16 @@ const getSpuList = async () => {
   addSpuButtonDisable.value = false
   spuTotal.value = result.data.total
   console.log(spuRecords.value)
+}
+
+const addSpu = () => {
+  scene.value = showScene.spuForm
+}
+
+const changeScene = (value: number) => {
+  if (value === 0) {
+    scene.value = showScene.spuList
+  }
 }
 </script>
 
