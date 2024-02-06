@@ -8,12 +8,12 @@
         <el-table-column label="id" width="80px" align="center" prop="id"></el-table-column>
         <el-table-column label="spuName" width="120px" prop="spuName"></el-table-column>
         <el-table-column label="description" prop="description"></el-table-column>
-        <el-table-column label="操作" width="300px" align="center">
+        <el-table-column label="操作" width="600px" align="center">
           <template v-slot="{ row, $index }">
-            <el-button type="primary" icon="plus" size="small" title="add sku"></el-button>
-            <el-button type="primary" icon="edit" size="small" title="add sku"></el-button>
-            <el-button type="primary" icon="search" size="small" title="add sku"></el-button>
-            <el-button type="primary" icon="delete" size="small" title="add sku"></el-button>
+            <el-button type="primary" icon="edit" size="small" title="edit spu" @click="editSpu(row)">edit spu</el-button>
+            <el-button type="primary" icon="plus" size="small" title="add sku">add sku</el-button>
+            <el-button type="primary" icon="search" size="small" title="查看sku">查看sku</el-button>
+            <el-button type="primary" icon="delete" size="small" title="delete sku">delete spu</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -29,8 +29,8 @@
         />
       </div>
     </div>
-    <SkuForm v-show="scene === showScene.skuForm"></SkuForm>
-    <SpuForm v-show="scene === showScene.spuForm" @changeScene="changeScene"></SpuForm>
+    <SpuForm ref="spuFormRef" v-show="scene === showScene.spuForm" @changeScene="changeScene"></SpuForm>
+    <SkuForm ref="skuFormRef" v-show="scene === showScene.skuForm"></SkuForm>
   </el-card>
 </template>
 
@@ -40,6 +40,7 @@ import { reqHasSpu } from '@baseUrl/api/product/spu'
 import { ref, reactive, Ref, onMounted } from 'vue'
 import SpuForm from './spuForm.vue'
 import SkuForm from './skuForm.vue'
+import type { SpuDate } from '@baseUrl/api/product/spu/type'
 let c1Arr = ref()
 let c2Arr = ref()
 let c3Arr = ref()
@@ -64,6 +65,8 @@ enum showScene {
 
 let scene = ref<number>(showScene.spuList)
 
+let spuFormRef = ref()
+let skuFormRef = ref()
 const handleSizeChange = () => {
   getSpuList()
 }
@@ -113,9 +116,13 @@ const addSpu = () => {
 }
 
 const changeScene = (value: number) => {
-  if (value === 0) {
-    scene.value = showScene.spuList
-  }
+  scene.value = value
+}
+
+const editSpu = (row: any) => {
+  changeScene(showScene.spuForm)
+
+  spuFormRef.value.initSpuData(row)
 }
 </script>
 
