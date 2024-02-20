@@ -99,7 +99,6 @@ let attrParams = reactive<Attr>({
 
 const getC1 = async () => {
   const result = await reqC1()
-  console.log(result)
   c1Arr.value = result.data
 }
 

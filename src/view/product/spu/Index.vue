@@ -11,9 +11,9 @@
         <el-table-column label="操作" width="600px" align="center">
           <template v-slot="{ row, $index }">
             <el-button type="primary" icon="edit" size="small" title="edit spu" @click="editSpu(row)">edit spu</el-button>
-            <el-button type="primary" icon="plus" size="small" title="add sku">add sku</el-button>
-            <el-button type="primary" icon="search" size="small" title="查看sku">查看sku</el-button>
-            <el-button type="primary" icon="delete" size="small" title="delete sku">delete spu</el-button>
+            <el-button type="primary" icon="plus" size="small" title="add sku" @click="addSku(row)">add sku</el-button>
+            <el-button type="primary" icon="search" size="small" title="查看sku" @click="showSku(row)">查看sku</el-button>
+            <el-button type="primary" icon="delete" size="small" title="delete sku" @click="deleteSpu(row)">delete spu</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -30,17 +30,30 @@
       </div>
     </div>
     <SpuForm ref="spuFormRef" v-show="scene === showScene.spuForm" @changeScene="changeScene"></SpuForm>
-    <SkuForm ref="skuFormRef" v-show="scene === showScene.skuForm"></SkuForm>
+    <SkuForm ref="skuFormRef" v-show="scene === showScene.skuForm" @changeScene="changeScene"></SkuForm>
+    <el-dialog v-model="show" title="SKU列表">
+      <el-table :data="skuArr">
+        <el-table-column label="SKU名字" prop="skuName"></el-table-column>
+        <el-table-column label="SKU价格" prop="price"></el-table-column>
+        <el-table-column label="SKU重量" prop="weight"></el-table-column>
+        <el-table-column label="SKU图片">
+          <template #="{ row, $index }">
+            <img :src="row.skuDefaultImg" alt="" style="width: 100px; height: 100px" />
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </el-card>
 </template>
 
 <script setup lang="ts">
-import { reqC1, reqC2, reqC3 } from '@baseUrl/api/product/attr'
-import { reqHasSpu } from '@baseUrl/api/product/spu'
+import { reqC1, reqC2, reqC3, reqRemoveAttr } from '@baseUrl/api/product/attr'
+import { reqHasSpu, reqSkuList } from '@baseUrl/api/product/spu'
 import { ref, reactive, Ref, onMounted } from 'vue'
 import SpuForm from './spuForm.vue'
 import SkuForm from './skuForm.vue'
-import type { SpuDate } from '@baseUrl/api/product/spu/type'
+import { SkuData, SkuInfoData } from '@baseUrl/api/product/spu/type'
+import { ElMessage } from 'element-plus'
 let c1Arr = ref()
 let c2Arr = ref()
 let c3Arr = ref()
@@ -67,6 +80,10 @@ let scene = ref<number>(showScene.spuList)
 
 let spuFormRef = ref()
 let skuFormRef = ref()
+
+let skuArr = ref<SkuData[]>([])
+let show = ref(false)
+
 const handleSizeChange = () => {
   getSpuList()
 }
@@ -79,7 +96,6 @@ onMounted(() => {
 })
 const getC1 = async () => {
   const result = await reqC1()
-  console.log(result)
   c1Arr.value = result.data
 }
 const getC2 = async (category1Id: string) => {
@@ -103,26 +119,54 @@ const onSubmit = (classFormInline: Ref) => {
 }
 
 const getSpuList = async () => {
-  // let result = await reqHasSpu(currentPage.value, pageSize.value, current_c3.value)
-  let result = await reqHasSpu(currentPage.value, pageSize.value, 1)
+  let result = await reqHasSpu(currentPage.value, pageSize.value, current_c3.value)
+  // let result = await reqHasSpu(currentPage.value, pageSize.value, 1)
   spuRecords.value = result.data.records
   addSpuButtonDisable.value = false
   spuTotal.value = result.data.total
-  console.log(spuRecords.value)
 }
 
 const addSpu = () => {
   scene.value = showScene.spuForm
+  spuFormRef.value.initAddSpu(c3Arr.value)
+}
+const showSku = async (row: any) => {
+  let res: SkuInfoData = await reqSkuList(row.id as number)
+  if (res.code === 200) {
+    skuArr.value = res.data
+    show.value = true
+  }
 }
 
+const deleteSpu = async (row: any) => {
+  let res: any = await reqRemoveAttr(row.id as number)
+  if (res.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: '删除成功',
+    })
+    getSpuList()
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '删除失败',
+    })
+  }
+}
 const changeScene = (value: number) => {
+  console.log(111)
+
   scene.value = value
 }
 
 const editSpu = (row: any) => {
   changeScene(showScene.spuForm)
-
   spuFormRef.value.initSpuData(row)
+}
+
+const addSku = (row: any) => {
+  changeScene(showScene.skuForm)
+  skuFormRef.value.initSkuData(current_c1.value, current_c2.value, row)
 }
 </script>
 

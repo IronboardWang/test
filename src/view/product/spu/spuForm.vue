@@ -29,30 +29,30 @@
       </el-form>
     </el-form-item>
     <el-form-item label="spu sales attribute">
-      <el-select>
-        <el-option label="huawei" value="huawei"></el-option>
-        <el-option label="huawei" value="huawei"></el-option>
-        <el-option label="huawei" value="huawei"></el-option>
+      <el-select :placeholder="unSelectSaleAttr.length ? `unSelectSaleAttr ${unSelectSaleAttr.length}` : `None`" v-model="saleAttrItemIdName">
+        <el-option v-for="item in unSelectSaleAttr" :key="item.id" :label="item.name" :value="`${item.id}:${item.name}`"></el-option>
       </el-select>
-      <el-button style="margin: 0 10px" type="primary" icon="plus">add sales attribute</el-button>
+      <el-button style="margin: 0 10px" type="primary" icon="plus" :disabled="saleAttrItemIdName ? false : true" @click="addSalesAttribute"
+        >add sales attribute</el-button
+      >
       <el-table border style="margin: 10px 0px" :data="spuHasSaleAttr">
-        <el-table-column label="index" width="80px"> </el-table-column>
+        <el-table-column label="序号" type="index" width="80px"> </el-table-column>
         <el-table-column label="sales attr name" width="100px" prop="saleAttrName"> </el-table-column>
         <el-table-column label="sales attr value">
-          <template v-slot="{ row }">
-            <el-tag v-for="item in row.spuSaleAttrValueList" :key="item.name" type="info" @close="handleClose(row, item)" closable>
-              {{ item.saleAttrName }}
+          <template v-slot="{ row, $index }">
+            <el-tag v-for="item in row.spuSaleAttrValueList" :key="item.name" type="info" @close="handleClose(row, $index)" closable>
+              {{ item.saleAttrValueName }}
             </el-tag>
             <el-input
-              v-if="inputVisible"
-              ref="InputRef"
-              v-model="inputValue"
+              v-if="row.tagEditStatus"
+              :ref="(vc: any) => (inputArr[$index] = vc)"
+              v-model="row.saleAttrValue"
               class="w-20"
               size="small"
               @keyup.enter="handleInputConfirm(row)"
-              @blur="handleInputConfirm(row)"
+              style="width: 150px"
             />
-            <el-button v-else class="button-new-tag" size="small" @click="showInput"> + New Tag </el-button>
+            <el-button v-else class="button-new-tag" size="small" @click="showInput(row, $index)"> + New Tag </el-button>
           </template>
         </el-table-column>
         <el-table-column label="operator" width="120px">
@@ -63,17 +63,17 @@
       </el-table>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary">save</el-button>
+      <el-button type="primary" @click="saveSpu" :disabled="spuHasSaleAttr.length > 0 ? false : true">save</el-button>
       <el-button @click="cancelAddSpu">cancel</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
-import type { ElInput, UploadProps } from 'element-plus'
-import { HasSaleAttr, SaleAttr, SpuData, SpuImg } from '@baseUrl/api/product/spu/type'
-import { reqAllTradeMark, reqSpuImageList, reqSpuHasSaleAttr, reqAllSalAttr } from '@baseUrl/api/product/spu'
+import { computed, nextTick, ref } from 'vue'
+import { ElMessage, type ElInput, type UploadProps } from 'element-plus'
+import { AllTradeMark, HasSaleAttr, HasSaleAttrResponseData, SaleAttr, SaleAttrValue, SpuData, SpuImg } from '@baseUrl/api/product/spu/type'
+import { reqAllTradeMark, reqSpuImageList, reqSpuHasSaleAttr, reqAllSalAttr, reqAddOrUpdateSpu } from '@baseUrl/api/product/spu'
 import { TradeMark } from '@baseUrl/api/product/trademark/type'
 
 const dialogImageUrl = ref('')
@@ -99,12 +99,89 @@ let SpuParams = ref<SpuData>({
   spuSaleAttrList: [],
 })
 
-const inputValue = ref('')
-const inputVisible = ref(false)
-const InputRef = ref<InstanceType<typeof ElInput>>()
+let inputArr = ref<any>([])
 
-const handleClose = (row: any, item: string) => {
-  row.spuSaleAttrValueList.splice(row.spuSaleAttrValueList.indexOf(item), 1)
+let saleAttrItemIdName = ref()
+const handleClose = (row: any, $index: any) => {
+  row.spuSaleAttrValueList.splice($index, 1)
+}
+
+const showInput = (row: any, $index: number) => {
+  console.log(row)
+
+  row.tagEditStatus = true
+  nextTick(() => {
+    inputArr.value[$index].focus()
+  })
+}
+
+const handleInputConfirm = (row: any) => {
+  const { baseSaleAttrId, saleAttrValue } = row
+  let newSaleAttrValue: SaleAttrValue = {
+    baseSaleAttrId,
+    saleAttrValueName: saleAttrValue as string,
+  }
+
+  if (saleAttrValue?.trim() === '' || saleAttrValue === undefined) {
+    row.tagEditStatus = false
+    return
+  }
+  let repeat = row.spuSaleAttrValueList.find((item: any) => {
+    return item.saleAttrValueName === saleAttrValue
+  })
+  if (repeat) {
+    ElMessage({
+      type: 'error',
+      message: '属性值重复',
+    })
+    return
+  }
+  row.spuSaleAttrValueList.push(newSaleAttrValue)
+  row.saleAttrValue = ''
+  row.tagEditStatus = false
+}
+
+const $emit = defineEmits(['changeScene'])
+const cancelAddSpu = () => {
+  $emit('changeScene', 0)
+}
+
+let unSelectSaleAttr = computed(() => {
+  let unSelectArr = allSalAttr.value.filter(item => {
+    return spuHasSaleAttr.value.every(item1 => {
+      return item.name !== item1.saleAttrName
+    })
+  })
+  return unSelectArr
+})
+
+const addSalesAttribute = () => {
+  const [baseSaleAttrId, saleAttrName] = saleAttrItemIdName.value.split(':')
+  let newSalesAttribute: SaleAttr = {
+    baseSaleAttrId,
+    saleAttrName,
+    spuSaleAttrValueList: [],
+  }
+  spuHasSaleAttr.value.push(newSalesAttribute)
+  saleAttrItemIdName.value = ''
+}
+
+const saveSpu = async () => {
+  SpuParams.value.spuImageList = spuImageList.value.map((item: any) => {
+    return {
+      imgName: item.name,
+      imgUrl: (item.response && item.response.data) || item.url,
+    }
+  })
+  SpuParams.value.spuSaleAttrList = spuHasSaleAttr.value
+  let res = await reqAddOrUpdateSpu(SpuParams.value)
+  if (res.code === 200) {
+    ElMessage({
+      type: 'success',
+      message: SpuParams.value.id ? '更新成功' : '添加成功',
+    })
+    $emit('changeScene', 0)
+  }
 }
 
 const initSpuData = async (spu: SpuData) => {
@@ -117,7 +194,6 @@ const initSpuData = async (spu: SpuData) => {
   spuHasSaleAttr.value = SpuHasSaleAttrResult.data
   let AllSalAttrResult = await reqAllSalAttr()
   allSalAttr.value = AllSalAttrResult.data
-  console.log(spuImageList.value)
   spuImageList.value = spuImageList.value.map(item => {
     return {
       name: item.imgName,
@@ -126,26 +202,27 @@ const initSpuData = async (spu: SpuData) => {
   })
 }
 
-const showInput = () => {
-  inputVisible.value = true
-  nextTick(() => {
-    InputRef.value!.input!.focus()
+const initAddSpu = async (c3Id: number | string) => {
+  debugger
+  Object.assign(SpuParams.value, {
+    category3Id: '',
+    spuName: '',
+    description: '',
+    tmId: '',
+    spuImageList: [],
+    spuSaleAttrList: [],
   })
+  spuImageList.value = []
+  spuHasSaleAttr.value = []
+  saleAttrItemIdName.value = ''
+  SpuParams.value.category3Id = c3Id
+  let res: AllTradeMark = await reqAllTradeMark()
+  let res1: HasSaleAttrResponseData = await reqAllSalAttr()
+  allTradeMark.value = res.data
+  allSalAttr.value = res1.data
 }
 
-const handleInputConfirm = (row: any) => {
-  if (inputValue.value) {
-    row.spuSaleAttrValueList.push(inputValue.value)
-  }
-  inputVisible.value = false
-  inputValue.value = ''
-}
-
-const $emit = defineEmits(['changeScene'])
-defineExpose({ initSpuData })
-const cancelAddSpu = () => {
-  $emit('changeScene', 0)
-}
+defineExpose({ initSpuData, initAddSpu })
 </script>
 
 <style scoped></style>

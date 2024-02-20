@@ -47,7 +47,6 @@ const changIcon = () => {
 }
 let $route = useRoute()
 let $router = useRouter()
-console.log($route.matched)
 
 const refresh_main = () => {
   LayOutSettingsStore.refresh = !LayOutSettingsStore.refresh
