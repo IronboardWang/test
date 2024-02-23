@@ -5,15 +5,15 @@
         <el-input v-model="username" placeholder="Please input username" clearable />
       </el-form-item>
       <el-form-item>
-        <el-button class="search-button" type="primary">search</el-button>
-        <el-button type="primary">reset</el-button>
+        <el-button class="search-button" type="primary" @click="getUserList">search</el-button>
+        <el-button type="primary" @click="reset">reset</el-button>
       </el-form-item>
     </el-form>
   </el-card>
   <el-card>
     <el-button type="primary" @click="addUser">添加</el-button>
-    <el-button type="danger">批量删除</el-button>
-    <el-table border :data="userListRecords">
+    <el-button type="danger" @click="deleteUserList">批量删除</el-button>
+    <el-table border :data="userListRecords" @selection-change="handleSelectionChange">
       <el-table-column type="selection"></el-table-column>
       <el-table-column label="#" type="index"></el-table-column>
       <el-table-column label="id" prop="id"></el-table-column>
@@ -84,7 +84,7 @@
           <div style="display: block">
             <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">Check all</el-checkbox>
             <el-checkbox-group v-model="checkedRoles" @change="handleCheckedRoleChange">
-              <el-checkbox v-for="role in roles" :key="role" :label="role">{{ role }}</el-checkbox>
+              <el-checkbox v-for="role in roles" :key="role" :label="role">{{ role.roleName }}</el-checkbox>
             </el-checkbox-group>
           </div>
         </el-form-item>
@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { reqAddOrUpdateUser, reqUserInfo } from '@baseUrl/api/acl/user'
+import { reqAddOrUpdateUser, reqAllRole, reqRemoveUser, reqSelectUser, reqSetUserRole, reqUserInfo } from '@baseUrl/api/acl/user'
 import { User } from '@baseUrl/api/acl/user/type'
 import { CheckboxValueType, ElMessage, FormInstance, FormProps, FormRules } from 'element-plus'
 import { ref, reactive, onMounted, nextTick } from 'vue'
@@ -123,11 +123,13 @@ let userParams = reactive<User>({
   password: '',
 })
 
-let setRoleVisibility = ref(true)
+let setRoleVisibility = ref(false)
 const checkAll = ref(false)
 const isIndeterminate = ref(true)
-const checkedRoles = ref(['Shanghai', 'Beijing'])
-const roles = ref(['Shanghai', 'Beijing', 'Guangzhou', 'Shenzhen'])
+const checkedRoles = ref()
+const roles = ref()
+
+let multipleSelection = ref([])
 
 const handleSizeChange = () => {
   getUserList()
@@ -143,6 +145,11 @@ const getUserList = async () => {
     userTotal.value = result.data.total
     console.log(userListRecords.value)
   }
+}
+
+const reset = () => {
+  username.value = ''
+  getUserList()
 }
 
 const addUser = () => {
@@ -243,12 +250,15 @@ const confirmAddOrUpdateUserClick = async (formEl: FormInstance | undefined) => 
 
 const setRole = async (row: any) => {
   setRoleVisibility.value = true
+  const result = await reqAllRole(row.id)
+  if (result.code === 200) {
+    checkedRoles.value = result.data.assignRoles
+    roles.value = result.data.allRolesList
+  }
   const checkedCount = checkedRoles.value.length
   checkAll.value = checkedCount === roles.value.length
   isIndeterminate.value = checkedCount > 0 && checkedCount < roles.value.length
-  Object.assign(userParams, {
-    username: row.username,
-  })
+  Object.assign(userParams, row)
 }
 
 const handleCheckAllChange = (val: CheckboxValueType) => {
@@ -261,6 +271,73 @@ const handleCheckedRoleChange = (value: CheckboxValueType[]) => {
   isIndeterminate.value = checkedCount > 0 && checkedCount < roles.value.length
 }
 
+const confirmSetRoleClick = async () => {
+  const roleIdList = checkedRoles.value.map((item: any) => {
+    return item.id
+  })
+  const SetRoleData = { userId: userParams.id as number, roleIdList }
+  const result = await reqSetUserRole(SetRoleData)
+  if (result.code === 200) {
+    setRoleVisibility.value = false
+    ElMessage({
+      type: 'success',
+      message: '更新成功',
+    })
+    getUserList()
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '更新失败',
+    })
+  }
+}
+
+const cancelSetRoleClick = () => {
+  setRoleVisibility.value = false
+}
+
+const deleteUser = async (id: number) => {
+  const result = await reqRemoveUser(id)
+  if (result.code === 200) {
+    setRoleVisibility.value = false
+    ElMessage({
+      type: 'success',
+      message: '删除成功',
+    })
+    getUserList()
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '删除失败',
+    })
+  }
+}
+
+const handleSelectionChange = (val: any) => {
+  multipleSelection.value = val
+}
+
+const deleteUserList = async () => {
+  console.log(multipleSelection.value)
+  const idList = multipleSelection.value.map((item: any) => {
+    return item.id
+  })
+  const result = await reqSelectUser(idList)
+
+  if (result.code === 200) {
+    setRoleVisibility.value = false
+    ElMessage({
+      type: 'success',
+      message: '删除成功',
+    })
+    getUserList()
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '删除失败',
+    })
+  }
+}
 onMounted(() => {
   getUserList()
 })

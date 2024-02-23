@@ -28,4 +28,4 @@ export const reqSetUserRole = (data: SetRoleData) => request.post<any, any>(API.
 
 export const reqRemoveUser = (userId: number) => request.delete<any, any>(API.DELETEUSER_URL + userId)
 
-export const reqSelectUser = (idList: number[]) => request.delete(API.DELETEALLUSER_URL, { data: idList })
+export const reqSelectUser = (idList: number[]) => request.delete<any, any>(API.DELETEALLUSER_URL, { data: idList })
