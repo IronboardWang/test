@@ -33,13 +33,13 @@ let $route = useRoute()
 
 <style scoped lang="scss">
 .layout_container {
-  background-color: white;
+  // background-color: white;
   width: 100%;
   height: 100vh;
   //   position: relative;
   .layout_slider {
     width: $base-menu-width;
-    background-color: white;
+    // background-color: white;
     height: 100vh;
     border-right: 1px solid gray;
     transition: all 0.3;

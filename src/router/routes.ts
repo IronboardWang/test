@@ -9,7 +9,7 @@ export const constantRoute = [
       {
         path: '/home',
         component: () => import('../view/home/Index.vue'),
-        name: 'home',
+        name: 'Home',
         meta: {
           title: 'Home',
           hidden: false,
@@ -21,7 +21,7 @@ export const constantRoute = [
   {
     path: '/screen',
     component: () => import('../view/screen/Index.vue'),
-    name: 'screen',
+    name: 'Screen',
     meta: {
       hidden: false,
       title: 'Screen',
@@ -31,7 +31,7 @@ export const constantRoute = [
   {
     path: '/acl',
     component: () => import('../layout/index.vue'),
-    name: 'acl',
+    name: 'Acl',
     meta: {
       hidden: false,
       title: 'acl',

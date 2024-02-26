@@ -47,6 +47,6 @@ export default {
 
 <style scoped>
 .menu-selected {
-  background-color: #e6f7ff;
+  /* background-color: #e6f7ff; */
 }
 </style>
