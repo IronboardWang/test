@@ -16,7 +16,7 @@
     <div class="tabber_right">
       <el-button type="primary" size="small" icon="refresh" :circle="true" @click="refresh_main"></el-button>
       <el-button type="primary" size="small" icon="FullScreen" :circle="true" @click="full_main"></el-button>
-      <el-popover placement="bottom" title="主题设置" :width="200" trigger="hover">
+      <el-popover :visible="visible" placement="bottom" title="主题设置" :width="200" trigger="hover">
         <el-form>
           <el-form-item label="主题颜色">
             <el-color-picker v-model="color" show-alpha :predefine="predefineColors" size="small" @change="setColor" />
@@ -26,7 +26,7 @@
           </el-form-item>
         </el-form>
         <template #reference>
-          <el-button class="last-button" type="primary" size="small" icon="Setting" :circle="true"></el-button>
+          <el-button class="last-button" type="primary" size="small" icon="Setting" :circle="true" @click="visible = !visible"></el-button>
         </template>
       </el-popover>
       <img :src="userStore.avatar" alt="" style="width: 25px; border-radius: 50%" />
@@ -53,7 +53,7 @@ import { useLayOutSettingsStore } from '../../store/layout/settings'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@baseUrl/store/user/user'
 import { ref } from 'vue'
-import { useDark, useToggle } from '@vueuse/core'
+import { useDark } from '@vueuse/core'
 let userStore = useUserStore()
 let LayOutSettingsStore = useLayOutSettingsStore()
 
@@ -86,6 +86,8 @@ const logout = async () => {
     },
   })
 }
+
+let visible = ref(false)
 
 const color = ref('rgba(255, 69, 0, 0.68)')
 const predefineColors = ref([
