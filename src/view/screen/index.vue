@@ -41,7 +41,7 @@ window.onresize = () => {
   .screen {
     width: 1920px;
     height: 1080px;
-    background-color: aqua;
+    // background-color: aqua;
     position: fixed;
     left: 50%;
     top: 50%;
